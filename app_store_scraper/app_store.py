@@ -41,7 +41,7 @@ class AppStore:
     ):
         self.country = str(country).lower()
         self.app_name = re.sub(r"[\W_]+", "-", str(app_name).lower())
-        self.app_id = str(app_id)
+        self.app_id = int(app_id)
 
         self.landing_url = self.__landing_url()
         self.request_url = self.__request_url()
