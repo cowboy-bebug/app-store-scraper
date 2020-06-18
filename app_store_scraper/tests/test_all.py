@@ -20,8 +20,7 @@ def test_app_urls():
     test_request_path = f"v1/catalog/{app.country}/apps/{app.app_id}/reviews"
     test_landing_url = f"{test_base_landing_url}/{test_landing_path}"
     test_request_url = f"{test_base_request_url}/{test_request_path}"
-    assert app.base_landing_url == test_base_landing_url
-    assert app.base_request_url == test_base_request_url
+
     assert app.landing_url == test_landing_url
     assert app.request_url == test_request_url
 
@@ -30,14 +29,22 @@ def test_app_defaults():
     assert app.log_interval == 10
 
 
-def test_app_token():
-    assert app.request_headers["Authorization"] is None
-
-
-def test_app():
+def test_review():
     fortnite = AppStore(country="nz", app_name="fortnite", app_id=1261357853)
     fortnite.review(how_many=3)
 
     assert len(fortnite.reviews) == 20
     assert len(fortnite.reviews) == fortnite.reviews_count
-    assert fortnite.request_offset == 20
+
+
+def test_review_continuation():
+    fortnite = AppStore(country="nz", app_name="fortnite", app_id=1261357853)
+
+    fortnite.review(how_many=7)
+    assert len(fortnite.reviews) == 20
+
+    fortnite.review(how_many=5)
+    assert len(fortnite.reviews) == 40
+
+    for i in range(len(fortnite.reviews) - 1):
+        assert fortnite.reviews[i] != fortnite.reviews[i + 1]
