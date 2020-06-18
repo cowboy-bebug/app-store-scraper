@@ -46,8 +46,8 @@ class AppStore:
         self.landing_url = self.__landing_url()
         self.request_url = self.__request_url()
 
-        self.request_offset = 0
-        self.request_headers = {
+        self.__request_offset = 0
+        self.__request_headers = {
             "Accept": "application/json",
             "Authorization": self.__token(),
             "Connection": "keep-alive",
@@ -56,21 +56,22 @@ class AppStore:
             "Referer": self.landing_url,
             "User-Agent": random.choice(self.__user_agents),
         }
-        self.request_params = {
+        self.__request_params = {
             "l": "en-GB",
-            "offset": self.request_offset,
+            "offset": self.__request_offset,
             "limit": 20,
             "platform": "web",
             "additionalPlatforms": "appletv,ipad,iphone,mac",
         }
+        self.__response = requests.Response()
 
         self.reviews = list()
         self.reviews_count = int()
-        self.fetched_count = int()
+        self.__fetched_count = int()
 
         logging.basicConfig(format=log_format, level=log_level.upper())
         self.log_interval = log_interval
-        self.log_timer = float()
+        self.__log_timer = float()
 
     def __repr__(self):
         return "{object}(country={country}, app_name={app_name}, app_id={app_id})".format(
@@ -117,43 +118,43 @@ class AppStore:
         with requests.Session() as s:
             s.mount(self.__base_request_url, HTTPAdapter(max_retries=retries))
             logger.debug(f"Making a GET request: {url}")
-            self.response = s.get(url, headers=headers, params=params)
+            self.__response = s.get(url, headers=headers, params=params)
 
     def __token(self):
         self.__get(self.landing_url)
-        tags = self.response.text.splitlines()
+        tags = self.__response.text.splitlines()
         for tag in tags:
             if re.match(r"<meta.+web-experience-app/config/environment", tag):
                 token = re.search(r"token%22%3A%22(.+?)%22", tag).group(1)
                 return f"bearer {token}"
 
     def __parse_data(self):
-        response = self.response.json()
+        response = self.__response.json()
         for data in response["data"]:
             review = data["attributes"]
             review["date"] = datetime.strptime(review["date"], "%Y-%m-%dT%H:%M:%SZ")
             self.reviews.append(review)
             self.reviews_count += 1
-            self.fetched_count += 1
+            self.__fetched_count += 1
             logger.debug(f"Fetched {self.reviews_count} review(s)")
 
     def __parse_next(self):
-        response = self.response.json()
+        response = self.__response.json()
         next_offset = response.get("next")
         if next_offset is None:
-            self.request_offset = None
+            self.__request_offset = None
         else:
             offset = re.search("^.+offset=([0-9]+).*$", next_offset).group(1)
-            self.request_offset = int(offset)
-            self.request_params.update({"offset": self.request_offset})
+            self.__request_offset = int(offset)
+            self.__request_params.update({"offset": self.__request_offset})
 
     def __heartbeat(self):
         interval = self.log_interval
-        if self.log_timer == 0:
-            self.log_timer = time.time()
-        if time.time() - self.log_timer > interval:
+        if self.__log_timer == 0:
+            self.__log_timer = time.time()
+        if time.time() - self.__log_timer > interval:
             logger.info(f"[{interval}s HEARTBEAT] Fetched {self.reviews_count} reviews")
-            self.log_timer = 0
+            self.__log_timer = 0
 
     def review(self, how_many=sys.maxsize):
         logger.info(f"Fetching reviews for {self.landing_url}")
@@ -161,12 +162,12 @@ class AppStore:
             self.__heartbeat()
             self.__get(
                 self.request_url,
-                headers=self.request_headers,
-                params=self.request_params,
+                headers=self.__request_headers,
+                params=self.__request_params,
             )
             self.__parse_data()
             self.__parse_next()
-            if self.request_offset is None or self.fetched_count >= how_many:
-                logger.info(f"Fetched {self.fetched_count} reviews")
-                self.fetched_count = 0
+            if self.__request_offset is None or self.__fetched_count >= how_many:
+                logger.info(f"Fetched {self.__fetched_count} reviews")
+                self.__fetched_count = 0
                 break
