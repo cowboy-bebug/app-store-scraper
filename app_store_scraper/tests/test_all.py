@@ -29,6 +29,12 @@ def test_app_defaults():
     assert app.log_interval == 10
 
 
+def test_search_id():
+    fortnite = AppStore(country="nz", app_name="fortnite")
+    fortnite.search_id()
+    fortnite.app_id == 1261357853
+
+
 def test_review():
     fortnite = AppStore(country="nz", app_name="fortnite", app_id=1261357853)
     fortnite.review(how_many=3)
