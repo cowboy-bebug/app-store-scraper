@@ -20,8 +20,6 @@ def test_app_urls():
     test_request_path = f"v1/catalog/{app.country}/apps/{app.app_id}/reviews"
     test_landing_url = f"{test_base_landing_url}/{test_landing_path}"
     test_request_url = f"{test_base_request_url}/{test_request_path}"
-    assert app.base_landing_url == test_base_landing_url
-    assert app.base_request_url == test_base_request_url
     assert app.landing_url == test_landing_url
     assert app.request_url == test_request_url
 
