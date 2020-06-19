@@ -44,10 +44,15 @@ class AppStore:
         if app_id is None:
             app_id = self.search_id()
         self.app_id = int(app_id)
-
         self.url = self.__landing_url()
-        self.__request_url = self.__request_url()
+        self.reviews = list()
+        self.reviews_count = int()
 
+        logging.basicConfig(format=log_format, level=log_level.upper())
+        self.__log_interval = float(log_interval)
+        self.__log_timer = float()
+        self.__fetched_count = int()
+        self.__request_url = self.__request_url()
         self.__request_offset = 0
         self.__request_headers = {
             "Accept": "application/json",
@@ -66,14 +71,6 @@ class AppStore:
             "additionalPlatforms": "appletv,ipad,iphone,mac",
         }
         self.__response = requests.Response()
-
-        self.reviews = list()
-        self.reviews_count = int()
-        self.__fetched_count = int()
-
-        logging.basicConfig(format=log_format, level=log_level.upper())
-        self.__log_interval = log_interval
-        self.__log_timer = float()
 
     def __repr__(self):
         return "{}(country='{}', app_name='{}', app_id={})".format(
