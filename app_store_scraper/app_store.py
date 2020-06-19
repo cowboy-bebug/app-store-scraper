@@ -44,10 +44,15 @@ class AppStore:
         if app_id is None:
             app_id = self.search_id()
         self.app_id = int(app_id)
+        self.url = self.__landing_url()
+        self.reviews = list()
+        self.reviews_count = int()
 
-        self.landing_url = self.__landing_url()
-        self.request_url = self.__request_url()
-
+        logging.basicConfig(format=log_format, level=log_level.upper())
+        self.__log_interval = float(log_interval)
+        self.__log_timer = float()
+        self.__fetched_count = int()
+        self.__request_url = self.__request_url()
         self.__request_offset = 0
         self.__request_headers = {
             "Accept": "application/json",
@@ -55,7 +60,7 @@ class AppStore:
             "Connection": "keep-alive",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "Origin": self.__base_landing_url,
-            "Referer": self.landing_url,
+            "Referer": self.url,
             "User-Agent": random.choice(self.__user_agents),
         }
         self.__request_params = {
@@ -66,14 +71,6 @@ class AppStore:
             "additionalPlatforms": "appletv,ipad,iphone,mac",
         }
         self.__response = requests.Response()
-
-        self.reviews = list()
-        self.reviews_count = int()
-        self.__fetched_count = int()
-
-        logging.basicConfig(format=log_format, level=log_level.upper())
-        self.log_interval = log_interval
-        self.__log_timer = float()
 
     def __repr__(self):
         return "{}(country='{}', app_name='{}', app_id={})".format(
@@ -86,7 +83,7 @@ class AppStore:
             f"{'Country'.rjust(width, ' ')} | {self.country}\n"
             f"{'Name'.rjust(width, ' ')} | {self.app_name}\n"
             f"{'ID'.rjust(width, ' ')} | {self.app_id}\n"
-            f"{'URL'.rjust(width, ' ')} | {self.landing_url}\n"
+            f"{'URL'.rjust(width, ' ')} | {self.url}\n"
             f"{'Review count'.rjust(width, ' ')} | {self.reviews_count}"
         )
 
@@ -120,7 +117,7 @@ class AppStore:
             self.__response = s.get(url, headers=headers, params=params)
 
     def __token(self):
-        self.__get(self.landing_url)
+        self.__get(self.url)
         tags = self.__response.text.splitlines()
         for tag in tags:
             if re.match(r"<meta.+web-experience-app/config/environment", tag):
@@ -148,7 +145,7 @@ class AppStore:
             self.__request_params.update({"offset": self.__request_offset})
 
     def __heartbeat(self):
-        interval = self.log_interval
+        interval = self.__log_interval
         if self.__log_timer == 0:
             self.__log_timer = time.time()
         if time.time() - self.__log_timer > interval:
@@ -163,11 +160,11 @@ class AppStore:
         return app_id
 
     def review(self, how_many=sys.maxsize):
-        logger.info(f"Fetching reviews for {self.landing_url}")
+        logger.info(f"Fetching reviews for {self.url}")
         while True:
             self.__heartbeat()
             self.__get(
-                self.request_url,
+                self.__request_url,
                 headers=self.__request_headers,
                 params=self.__request_params,
             )
