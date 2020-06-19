@@ -45,7 +45,7 @@ class AppStore:
             app_id = self.search_id()
         self.app_id = int(app_id)
 
-        self.landing_url = self.__landing_url()
+        self.url = self.__landing_url()
         self.__request_url = self.__request_url()
 
         self.__request_offset = 0
@@ -55,7 +55,7 @@ class AppStore:
             "Connection": "keep-alive",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "Origin": self.__base_landing_url,
-            "Referer": self.landing_url,
+            "Referer": self.url,
             "User-Agent": random.choice(self.__user_agents),
         }
         self.__request_params = {
@@ -86,7 +86,7 @@ class AppStore:
             f"{'Country'.rjust(width, ' ')} | {self.country}\n"
             f"{'Name'.rjust(width, ' ')} | {self.app_name}\n"
             f"{'ID'.rjust(width, ' ')} | {self.app_id}\n"
-            f"{'URL'.rjust(width, ' ')} | {self.landing_url}\n"
+            f"{'URL'.rjust(width, ' ')} | {self.url}\n"
             f"{'Review count'.rjust(width, ' ')} | {self.reviews_count}"
         )
 
@@ -120,7 +120,7 @@ class AppStore:
             self.__response = s.get(url, headers=headers, params=params)
 
     def __token(self):
-        self.__get(self.landing_url)
+        self.__get(self.url)
         tags = self.__response.text.splitlines()
         for tag in tags:
             if re.match(r"<meta.+web-experience-app/config/environment", tag):
@@ -163,7 +163,7 @@ class AppStore:
         return app_id
 
     def review(self, how_many=sys.maxsize):
-        logger.info(f"Fetching reviews for {self.landing_url}")
+        logger.info(f"Fetching reviews for {self.url}")
         while True:
             self.__heartbeat()
             self.__get(

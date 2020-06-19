@@ -18,7 +18,7 @@ class TestEmptyApp:
         base_landing_url = "https://apps.apple.com"
         landing_path = f"{self.app.country}/app/{self.app.app_name}/id{self.app.app_id}"
         landing_url = f"{base_landing_url}/{landing_path}"
-        assert self.app.landing_url == landing_url
+        assert self.app.url == landing_url
 
     def test_repr(self):
         assert self.app.__repr__() == (
@@ -34,7 +34,7 @@ class TestEmptyApp:
             f"     Country | {self.app.country}\n"
             f"        Name | {self.app.app_name}\n"
             f"          ID | {self.app.app_id}\n"
-            f"         URL | {self.app.landing_url}\n"
+            f"         URL | {self.app.url}\n"
             f"Review count | {self.app.reviews_count}\n"
         )
 
