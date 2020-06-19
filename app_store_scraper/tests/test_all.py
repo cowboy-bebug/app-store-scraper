@@ -1,48 +1,61 @@
 from app_store_scraper import AppStore
 
-test_country = "Nz"
-test_app_name = "Cool App"
-test_app_id = 7357
 
-app = AppStore(country=test_country, app_name=test_app_name, app_id=test_app_id)
+class TestEmptyApp:
+    country = "Nz"
+    app_name = "Cool App"
+    app_id = 7357
+    app = AppStore(country=country, app_name=app_name, app_id=app_id)
+
+    def test_init_attributes(self):
+        assert self.app.country == self.country.lower()
+        assert self.app.app_name == self.app_name.lower().replace(" ", "-")
+        assert self.app.app_id == self.app_id
+        assert self.app.reviews == []
+        assert self.app.reviews_count == 0
+
+    def test_init_url(self):
+        base_landing_url = "https://apps.apple.com"
+        landing_path = f"{self.app.country}/app/{self.app.app_name}/id{self.app.app_id}"
+        landing_url = f"{base_landing_url}/{landing_path}"
+        assert self.app.landing_url == landing_url
+
+    def test_repr(self):
+        assert self.app.__repr__() == (
+            f"AppStore(country='{self.app.country}', "
+            f"app_name='{self.app.app_name}', "
+            f"app_id={self.app.app_id})"
+        )
+
+    def test_str(self, capsys):
+        print(self.app)
+        captured = capsys.readouterr()
+        assert captured.out == (
+            f"     Country | {self.app.country}\n"
+            f"        Name | {self.app.app_name}\n"
+            f"          ID | {self.app.app_id}\n"
+            f"         URL | {self.app.landing_url}\n"
+            f"Review count | {self.app.reviews_count}\n"
+        )
 
 
-def test_app_init_fields():
-    assert app.country == test_country.lower()
-    assert app.app_name == test_app_name.lower().replace(" ", "-")
-    assert app.app_id == test_app_id
+class TestApp:
+    app = AppStore(country="nz", app_name="fortnite")
 
+    def test_search_id(self):
+        self.app.search_id()
+        assert self.app.app_id == 1261357853
 
-def test_app_urls():
-    test_base_landing_url = "https://apps.apple.com"
-    test_landing_path = f"{app.country}/app/{app.app_name}/id{app.app_id}"
-    test_landing_url = f"{test_base_landing_url}/{test_landing_path}"
+    def test_review(self):
+        self.app.review(how_many=3)
+        assert len(self.app.reviews) == 20
+        assert len(self.app.reviews) == self.app.reviews_count
 
-    assert app.landing_url == test_landing_url
+    def test_review_continuation(self):
+        assert len(self.app.reviews) == 20
+        self.app.review(how_many=7)
+        assert len(self.app.reviews) == 40
 
-
-def test_search_id():
-    fortnite = AppStore(country="nz", app_name="fortnite")
-    fortnite.search_id()
-    fortnite.app_id == 1261357853
-
-
-def test_review():
-    fortnite = AppStore(country="nz", app_name="fortnite", app_id=1261357853)
-    fortnite.review(how_many=3)
-
-    assert len(fortnite.reviews) == 20
-    assert len(fortnite.reviews) == fortnite.reviews_count
-
-
-def test_review_continuation():
-    fortnite = AppStore(country="nz", app_name="fortnite", app_id=1261357853)
-
-    fortnite.review(how_many=7)
-    assert len(fortnite.reviews) == 20
-
-    fortnite.review(how_many=5)
-    assert len(fortnite.reviews) == 40
-
-    for i in range(len(fortnite.reviews) - 1):
-        assert fortnite.reviews[i] != fortnite.reviews[i + 1]
+    def test_reviews_for_duplicates(self):
+        for i in range(len(self.app.reviews) - 1):
+            assert self.app.reviews[i] != self.app.reviews[i + 1]
