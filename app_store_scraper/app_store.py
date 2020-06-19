@@ -46,7 +46,7 @@ class AppStore:
         self.app_id = int(app_id)
 
         self.landing_url = self.__landing_url()
-        self.request_url = self.__request_url()
+        self.__request_url = self.__request_url()
 
         self.__request_offset = 0
         self.__request_headers = {
@@ -72,7 +72,7 @@ class AppStore:
         self.__fetched_count = int()
 
         logging.basicConfig(format=log_format, level=log_level.upper())
-        self.log_interval = log_interval
+        self.__log_interval = log_interval
         self.__log_timer = float()
 
     def __repr__(self):
@@ -148,7 +148,7 @@ class AppStore:
             self.__request_params.update({"offset": self.__request_offset})
 
     def __heartbeat(self):
-        interval = self.log_interval
+        interval = self.__log_interval
         if self.__log_timer == 0:
             self.__log_timer = time.time()
         if time.time() - self.__log_timer > interval:
@@ -167,7 +167,7 @@ class AppStore:
         while True:
             self.__heartbeat()
             self.__get(
-                self.request_url,
+                self.__request_url,
                 headers=self.__request_headers,
                 params=self.__request_params,
             )

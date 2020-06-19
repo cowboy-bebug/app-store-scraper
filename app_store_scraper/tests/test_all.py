@@ -15,18 +15,10 @@ def test_app_init_fields():
 
 def test_app_urls():
     test_base_landing_url = "https://apps.apple.com"
-    test_base_request_url = "https://amp-api.apps.apple.com"
     test_landing_path = f"{app.country}/app/{app.app_name}/id{app.app_id}"
-    test_request_path = f"v1/catalog/{app.country}/apps/{app.app_id}/reviews"
     test_landing_url = f"{test_base_landing_url}/{test_landing_path}"
-    test_request_url = f"{test_base_request_url}/{test_request_path}"
 
     assert app.landing_url == test_landing_url
-    assert app.request_url == test_request_url
-
-
-def test_app_defaults():
-    assert app.log_interval == 10
 
 
 def test_search_id():
