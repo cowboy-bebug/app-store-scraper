@@ -1,6 +1,9 @@
-![Build](https://github.com/cowboy-bebug/app-store-scraper/workflows/Build/badge.svg)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/cowboy-bebug/app-store-scraper/pulls)
-<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+![build](https://img.shields.io/github/workflow/status/cowboy-bebug/app-store-scraper/Build)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/cowboy-bebug/app-store-scraper/pulls)
+[![PyPI](https://img.shields.io/pypi/v/app-store-scraper)](https://pypi.org/project/app-store-scraper/)
+![downloads](https://img.shields.io/pypi/dm/app-store-scraper)
+![license](https://img.shields.io/pypi/l/app-store-scraper)
+![code style](https://img.shields.io/badge/code%20style-black-black)
 
 ```
    ___                _____ _                   _____
@@ -23,12 +26,13 @@ pip3 install app-store-scraper
 from app_store_scraper import AppStore
 from pprint import pprint
 
-fortnite = AppStore(country="nz", app_name="fortnite", app_id=1261357853)
+fortnite = AppStore(country="nz", app_name="fortnite")
 fortnite.review(how_many=20)
 
 pprint(fortnite.reviews)
 pprint(fortnite.reviews_count)
 ```
+
 
 # Extra Details
 
@@ -37,21 +41,32 @@ Let's continue from the code example used in [Quickstart](#quickstart).
 
 ## Instantiation
 
-There are three required arguments, `country, app_name, app_id`.
+There are two required and one positional parameters:
 
+- `country` (required)
+  - two-letter country code of [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) standard
+- `app_name` (required)
+  - name of an iOS application to fetch reviews for
+  - also used by `search_id()` method to search for `app_id` internally
+- `app_id` (positional)
+  - can be passed directly
+  - or ignored to be obtained by `search_id` method internally
+
+Once instantiated, the object can be examined:
 ```pycon
 >>> fortnite
-AppStore(country=nz, app_name=fortnite, app_id=1261357853)
+AppStore(country='nz', app_name='fortnite', app_id=1261357853)
 ```
-
-These are required to create a URL for the App Store landing page, which can be displayed by the private field, `landing_url` like below:
-
 ```pycon
->>> fortnite.landing_url
-'https://apps.apple.com/nz/app/fortnite/id1261357853'
+>>> print(app)
+     Country | nz
+        Name | fortnite
+          ID | 1261357853
+         URL | https://apps.apple.com/nz/app/fortnite/id1261357853
+Review count | 0
 ```
 
-There are optional arguments used to override log settings:
+Other optional parameters are:
 
 - `log_format`
   - passed directly to `logging.basicConfig(format=log_format)`

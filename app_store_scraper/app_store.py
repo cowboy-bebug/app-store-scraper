@@ -34,14 +34,16 @@ class AppStore:
         self,
         country,
         app_name,
-        app_id,
+        app_id=None,
         log_format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
         log_level="INFO",
         log_interval=10,
     ):
         self.country = str(country).lower()
         self.app_name = re.sub(r"[\W_]+", "-", str(app_name).lower())
-        self.app_id = str(app_id)
+        if app_id is None:
+            app_id = self.search_id()
+        self.app_id = int(app_id)
 
         self.landing_url = self.__landing_url()
         self.request_url = self.__request_url()
@@ -74,11 +76,8 @@ class AppStore:
         self.__log_timer = float()
 
     def __repr__(self):
-        return "{object}(country={country}, app_name={app_name}, app_id={app_id})".format(
-            object=self.__class__.__name__,
-            country=self.country,
-            app_name=self.app_name,
-            app_id=self.app_id,
+        return "{}(country='{}', app_name='{}', app_id={})".format(
+            self.__class__.__name__, self.country, self.app_name, self.app_id,
         )
 
     def __str__(self):
@@ -155,6 +154,13 @@ class AppStore:
         if time.time() - self.__log_timer > interval:
             logger.info(f"[{interval}s HEARTBEAT] Fetched {self.reviews_count} reviews")
             self.__log_timer = 0
+
+    def search_id(self):
+        search_url = "https://www.google.com/search"
+        self.__get(search_url, params={"q": f"app store {self.app_name}"})
+        pattern = fr"{self.__base_landing_url}/[a-z]{{2}}/.+?/id([0-9]+)"
+        app_id = re.search(pattern, self.__response.text).group(1)
+        return app_id
 
     def review(self, how_many=sys.maxsize):
         logger.info(f"Fetching reviews for {self.landing_url}")

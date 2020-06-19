@@ -10,7 +10,7 @@ app = AppStore(country=test_country, app_name=test_app_name, app_id=test_app_id)
 def test_app_init_fields():
     assert app.country == test_country.lower()
     assert app.app_name == test_app_name.lower().replace(" ", "-")
-    assert app.app_id == str(test_app_id).lower()
+    assert app.app_id == test_app_id
 
 
 def test_app_urls():
@@ -27,6 +27,12 @@ def test_app_urls():
 
 def test_app_defaults():
     assert app.log_interval == 10
+
+
+def test_search_id():
+    fortnite = AppStore(country="nz", app_name="fortnite")
+    fortnite.search_id()
+    fortnite.app_id == 1261357853
 
 
 def test_review():
