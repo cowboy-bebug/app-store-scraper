@@ -76,11 +76,8 @@ class AppStore:
         self.__log_timer = float()
 
     def __repr__(self):
-        return "{object}(country={country}, app_name={app_name}, app_id={app_id})".format(
-            object=self.__class__.__name__,
-            country=self.country,
-            app_name=self.app_name,
-            app_id=self.app_id,
+        return "{}(country='{}', app_name='{}', app_id={})".format(
+            self.__class__.__name__, self.country, self.app_name, self.app_id,
         )
 
     def __str__(self):
