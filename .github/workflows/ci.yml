@@ -46,8 +46,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check for version bump
-        id: check_version
-        if: ${{ contains(github.head_ref, 'release') }}
+        if: ${{ startsWith(github.head_ref, 'release') }}
         run: |
           VERSION=$(echo -n $(git diff origin/${{ github.base_ref }} -G '__version__' app_store_scraper/__version__.py))
           VERSION=$(echo "$VERSION" | sed -E "s/.*\+__version__.*([0-9]+\.[0-9]+\.[0-9]+).+/\1/")
@@ -55,14 +54,16 @@ jobs:
             echo "Bump __version__ for release"
             exit 1
           else
-            echo "::set-env name=VERSION::$VERSION"
             echo "Version: $VERSION"
             exit 0
           fi
       - name: Create tag
         if: github.ref == 'refs/heads/master'
         run: |
+          VERSION=$(echo -n $(git diff HEAD^1 -G '__version__' app_store_scraper/__version__.py))
+          VERSION=$(echo "$VERSION" | sed -E "s/.*\+__version__.*([0-9]+\.[0-9]+\.[0-9]+).+/\1/")
           if [ "$VERSION" != "" ]; then
-            git tag v$VERSION
-            git push origin v$VERSION
+            echo "Create and push v$VERSION tag"
+            git tag v"$VERSION"
+            git push origin v"$VERSION"
           fi
