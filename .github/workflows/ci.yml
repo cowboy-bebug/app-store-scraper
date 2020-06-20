@@ -60,7 +60,9 @@ jobs:
             exit 0
           fi
       - name: Create tag
-        if: github.ref == 'refs/heads/master' && steps.check_version.output == 'success'
+        if: github.ref == 'refs/heads/master'
         run: |
-          git tag v$VERSION
-          git push origin v$VERSION
+          if [ "$VERSION" != "" ]; then
+            git tag v$VERSION
+            git push origin v$VERSION
+          fi
