@@ -173,16 +173,22 @@ class AppStore:
 
     def review(self, how_many=sys.maxsize):
         self.__log_timer = 0
-        while True:
-            self.__heartbeat()
-            self.__get(
-                self.__request_url,
-                headers=self.__request_headers,
-                params=self.__request_params,
-            )
-            self.__parse_data()
-            self.__parse_next()
-            if self.__request_offset is None or self.__fetched_count >= how_many:
-                self.__log_status()
-                self.__fetched_count = 0
-                break
+        try:
+            while True:
+                self.__heartbeat()
+                self.__get(
+                    self.__request_url,
+                    headers=self.__request_headers,
+                    params=self.__request_params,
+                )
+                self.__parse_data()
+                self.__parse_next()
+                if self.__request_offset is None or self.__fetched_count >= how_many:
+                    break
+        except KeyboardInterrupt:
+            logger.error("Keyboard interrupted")
+        except Exception as e:
+            logger.error(f"Something went wrong: {e}")
+        finally:
+            self.__log_status()
+            self.__fetched_count = 0
