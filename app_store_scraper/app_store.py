@@ -39,16 +39,17 @@ class AppStore:
         log_level="INFO",
         log_interval=10,
     ):
+        logging.basicConfig(format=log_format, level=log_level.upper())
         self.country = str(country).lower()
         self.app_name = re.sub(r"[\W_]+", "-", str(app_name).lower())
         if app_id is None:
+            logger.info("Searching for app id")
             app_id = self.search_id()
         self.app_id = int(app_id)
         self.url = self.__landing_url()
         self.reviews = list()
         self.reviews_count = int()
 
-        logging.basicConfig(format=log_format, level=log_level.upper())
         self.__log_interval = float(log_interval)
         self.__log_timer = float()
         self.__fetched_count = int()
@@ -71,6 +72,11 @@ class AppStore:
             "additionalPlatforms": "appletv,ipad,iphone,mac",
         }
         self.__response = requests.Response()
+        logger.info(
+            f"Initialised: {self.__class__.__name__}"
+            f"('{self.country}', '{self.app_name}', {self.app_id})"
+        )
+        logger.info(f"Ready to fetch reviews from: {self.url}")
 
     def __repr__(self):
         return "{}(country='{}', app_name='{}', app_id={})".format(
