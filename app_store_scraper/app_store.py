@@ -150,12 +150,18 @@ class AppStore:
             self.__request_offset = int(offset)
             self.__request_params.update({"offset": self.__request_offset})
 
+    def __log_status(self):
+        logger.info(
+            f"[id:{self.app_id}] Fetched {self.__fetched_count} reviews "
+            f"({self.reviews_count} fetched in total)"
+        )
+
     def __heartbeat(self):
         interval = self.__log_interval
         if self.__log_timer == 0:
             self.__log_timer = time.time()
         if time.time() - self.__log_timer > interval:
-            logger.info(f"[id:{self.app_id}] Fetched {self.__fetched_count} reviews")
+            self.__log_status()
             self.__log_timer = 0
 
     def search_id(self):
@@ -177,8 +183,6 @@ class AppStore:
             self.__parse_data()
             self.__parse_next()
             if self.__request_offset is None or self.__fetched_count >= how_many:
-                logger.info(
-                    f"[id:{self.app_id}] Fetched {self.__fetched_count} reviews"
-                )
+                self.__log_status()
                 self.__fetched_count = 0
                 break
