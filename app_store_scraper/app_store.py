@@ -167,6 +167,7 @@ class AppStore:
 
     def review(self, how_many=sys.maxsize):
         logger.info(f"Fetching reviews for {self.url}")
+        self.__log_timer = 0
         while True:
             self.__heartbeat()
             self.__get(
