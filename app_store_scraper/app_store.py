@@ -37,7 +37,7 @@ class AppStore:
         app_id=None,
         log_format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
         log_level="INFO",
-        log_interval=10,
+        log_interval=5,
     ):
         logging.basicConfig(format=log_format, level=log_level.upper())
         self.country = str(country).lower()

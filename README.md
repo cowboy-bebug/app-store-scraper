@@ -75,8 +75,8 @@ Other optional parameters are:
   - passed directly to `logging.basicConfig(level=log_level)`
   - default is `"INFO"`
 - `log_interval`
-  - log is produced every 10 seconds (by default) as a "heartbeat" (useful for a long scraping session)
-  - default is `10`
+  - log is produced every 5 seconds (by default) as a "heartbeat" (useful for a long scraping session)
+  - default is `5`
 
 
 ## Fetching Review
