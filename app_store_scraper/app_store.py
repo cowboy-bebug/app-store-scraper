@@ -37,18 +37,19 @@ class AppStore:
         app_id=None,
         log_format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
         log_level="INFO",
-        log_interval=10,
+        log_interval=5,
     ):
+        logging.basicConfig(format=log_format, level=log_level.upper())
         self.country = str(country).lower()
         self.app_name = re.sub(r"[\W_]+", "-", str(app_name).lower())
         if app_id is None:
+            logger.info("Searching for app id")
             app_id = self.search_id()
         self.app_id = int(app_id)
         self.url = self.__landing_url()
         self.reviews = list()
         self.reviews_count = int()
 
-        logging.basicConfig(format=log_format, level=log_level.upper())
         self.__log_interval = float(log_interval)
         self.__log_timer = float()
         self.__fetched_count = int()
@@ -71,6 +72,11 @@ class AppStore:
             "additionalPlatforms": "appletv,ipad,iphone,mac",
         }
         self.__response = requests.Response()
+        logger.info(
+            f"Initialised: {self.__class__.__name__}"
+            f"('{self.country}', '{self.app_name}', {self.app_id})"
+        )
+        logger.info(f"Ready to fetch reviews from: {self.url}")
 
     def __repr__(self):
         return "{}(country='{}', app_name='{}', app_id={})".format(
@@ -144,12 +150,18 @@ class AppStore:
             self.__request_offset = int(offset)
             self.__request_params.update({"offset": self.__request_offset})
 
+    def __log_status(self):
+        logger.info(
+            f"[id:{self.app_id}] Fetched {self.__fetched_count} reviews "
+            f"({self.reviews_count} fetched in total)"
+        )
+
     def __heartbeat(self):
         interval = self.__log_interval
         if self.__log_timer == 0:
             self.__log_timer = time.time()
         if time.time() - self.__log_timer > interval:
-            logger.info(f"[{interval}s HEARTBEAT] Fetched {self.reviews_count} reviews")
+            self.__log_status()
             self.__log_timer = 0
 
     def search_id(self):
@@ -160,17 +172,23 @@ class AppStore:
         return app_id
 
     def review(self, how_many=sys.maxsize):
-        logger.info(f"Fetching reviews for {self.url}")
-        while True:
-            self.__heartbeat()
-            self.__get(
-                self.__request_url,
-                headers=self.__request_headers,
-                params=self.__request_params,
-            )
-            self.__parse_data()
-            self.__parse_next()
-            if self.__request_offset is None or self.__fetched_count >= how_many:
-                logger.info(f"Fetched {self.__fetched_count} reviews")
-                self.__fetched_count = 0
-                break
+        self.__log_timer = 0
+        try:
+            while True:
+                self.__heartbeat()
+                self.__get(
+                    self.__request_url,
+                    headers=self.__request_headers,
+                    params=self.__request_params,
+                )
+                self.__parse_data()
+                self.__parse_next()
+                if self.__request_offset is None or self.__fetched_count >= how_many:
+                    break
+        except KeyboardInterrupt:
+            logger.error("Keyboard interrupted")
+        except Exception as e:
+            logger.error(f"Something went wrong: {e}")
+        finally:
+            self.__log_status()
+            self.__fetched_count = 0

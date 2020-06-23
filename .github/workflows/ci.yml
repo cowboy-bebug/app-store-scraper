@@ -45,25 +45,76 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Check for version bump
+      - name: Check version bump and set versions as envvar
+        run: |
+          SEMVER_PATTERN="([0-9]+)\.([0-9]+)\.([0-9]+)"
+          VERSION=$(echo -n $(git diff origin/${{ github.base_ref }} -G '__version__' app_store_scraper/__version__.py))
+
+          if [ "$VERSION" = "" ]; then
+            echo "Version must be bumped for every PR"
+            exit 1
+          fi
+
+          VERSION_OLD=$(echo "$VERSION" | sed -E "s/.*\-__version__ = \"($SEMVER_PATTERN).+/\1/")
+          VERSION_OLD_MAJOR=$(echo "$VERSION_OLD" | sed -E "s/$SEMVER_PATTERN/\1/")
+          VERSION_OLD_MINOR=$(echo "$VERSION_OLD" | sed -E "s/$SEMVER_PATTERN/\2/")
+          VERSION_OLD_PATCH=$(echo "$VERSION_OLD" | sed -E "s/$SEMVER_PATTERN/\3/")
+
+          VERSION_NEW=$(echo "$VERSION" | sed -E "s/.*\+__version__ = \"($SEMVER_PATTERN).+/\1/")
+          VERSION_NEW_MAJOR=$(echo "$VERSION_NEW" | sed -E "s/$SEMVER_PATTERN/\1/")
+          VERSION_NEW_MINOR=$(echo "$VERSION_NEW" | sed -E "s/$SEMVER_PATTERN/\2/")
+          VERSION_NEW_PATCH=$(echo "$VERSION_NEW" | sed -E "s/$SEMVER_PATTERN/\3/")
+
+          echo "::set-env name=VERSION_OLD::$VERSION_OLD"
+          echo "::set-env name=VERSION_OLD_MAJOR::$VERSION_OLD_MAJOR"
+          echo "::set-env name=VERSION_OLD_MINOR::$VERSION_OLD_MINOR"
+          echo "::set-env name=VERSION_OLD_PATCH::$VERSION_OLD_PATCH"
+
+          echo "::set-env name=VERSION_NEW::$VERSION_NEW"
+          echo "::set-env name=VERSION_NEW_MAJOR::$VERSION_NEW_MAJOR"
+          echo "::set-env name=VERSION_NEW_MINOR::$VERSION_NEW_MINOR"
+          echo "::set-env name=VERSION_NEW_PATCH::$VERSION_NEW_PATCH"
+
+          echo "Old version: $VERSION_OLD"
+          echo "New version: $VERSION_NEW"
+      - name: Check for patch version bump
+        if: ${{ !startsWith(github.head_ref, 'release') }}
+        run: |
+          if [ "$VERSION_OLD_MAJOR" = "$VERSION_NEW_MAJOR" ] &&
+             [ "$VERSION_OLD_MINOR" = "$VERSION_NEW_MINOR" ]; then
+            if (($VERSION_OLD_PATCH < $VERSION_NEW_PATCH)); then
+              echo "Bumped patch version $VERSION_OLD -> $VERSION_NEW"
+              exit 0
+            else
+              echo "Bump patch version in __version__"
+              exit 1
+            fi
+          else
+            echo "Major / minor version must be bumped in a release branch"
+            exit 1
+          fi
+      - name: Check for major / minor version bump
         if: ${{ startsWith(github.head_ref, 'release') }}
         run: |
-          VERSION=$(echo -n $(git diff origin/${{ github.base_ref }} -G '__version__' app_store_scraper/__version__.py))
-          VERSION=$(echo "$VERSION" | sed -E "s/.*\+__version__.*([0-9]+\.[0-9]+\.[0-9]+).+/\1/")
-          if [ "$VERSION" = "" ]; then
-            echo "Bump __version__ for release"
-            exit 1
-          else
-            echo "Version: $VERSION"
+          if (($VERSION_OLD_MAJOR < $VERSION_NEW_MAJOR)) &&
+             (($VERSION_OLD_MINOR = $VERSION_NEW_MINOR)); then
+            echo "Bumped major version $VERSION_OLD -> $VERSION_NEW"
             exit 0
-          fi
-      - name: Create tag
+          elif (($VERSION_OLD_MAJOR = $VERSION_NEW_MAJOR)) &&
+               (($VERSION_OLD_MINOR < $VERSION_NEW_MINOR)); then
+            echo "Bumped minor version $VERSION_OLD -> $VERSION_NEW"
+            exit 0
+          else
+            echo "Major / minor version must be bumped for release"
+            exit 1
+          fin
+      - name: Create and push tag
         if: github.ref == 'refs/heads/master'
         run: |
-          VERSION=$(echo -n $(git diff HEAD^1 -G '__version__' app_store_scraper/__version__.py))
-          VERSION=$(echo "$VERSION" | sed -E "s/.*\+__version__.*([0-9]+\.[0-9]+\.[0-9]+).+/\1/")
-          if [ "$VERSION" != "" ]; then
-            echo "Create and push v$VERSION tag"
-            git tag v"$VERSION"
-            git push origin v"$VERSION"
+          version=$(echo -n $(git diff HEAD^1 -G '__version__' app_store_scraper/__version__.py))
+          version=$(echo "$version" | sed -E "s/.*\+__version__.*([0-9]+\.[0-9]+\.[0-9]+).+/\1/")
+          if [ "$version" != "" ]; then
+            echo "Create and push v$version tag"
+            git tag v"$version"
+            git push origin v"$version"
           fi
