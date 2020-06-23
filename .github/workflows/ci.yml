@@ -46,6 +46,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check version bump and set versions as envvar
+        if: github.ref != 'refs/heads/master'
         run: |
           SEMVER_PATTERN="([0-9]+)\.([0-9]+)\.([0-9]+)"
           VERSION=$(echo -n $(git diff origin/${{ github.base_ref }} -G '__version__' app_store_scraper/__version__.py))
