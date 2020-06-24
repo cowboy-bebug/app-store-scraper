@@ -79,7 +79,7 @@ jobs:
           echo "Old version: $VERSION_OLD"
           echo "New version: $VERSION_NEW"
       - name: Check for patch version bump
-        if: ${{ !startsWith(github.head_ref, 'release') }}
+        if: ${{ !startsWith(github.head_ref, 'release') && github.ref != 'refs/heads/master' }}
         run: |
           if [ "$VERSION_OLD_MAJOR" = "$VERSION_NEW_MAJOR" ] &&
              [ "$VERSION_OLD_MINOR" = "$VERSION_NEW_MINOR" ]; then
