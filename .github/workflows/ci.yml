@@ -48,6 +48,13 @@ jobs:
       - name: Check version bump and set versions as envvar
         if: github.ref != 'refs/heads/master'
         run: |
+          FILES_CHANGED=$(echo -n $(git diff origin/${{ github.base_ref }} --name-only))
+          if [[ $FILES_CHANGED != *.py ]]; then
+            echo "No Python scripts are modified"
+            echo "::set-env name=FILES_CHANGED::false"
+            exit 0
+          fi
+
           SEMVER_PATTERN="([0-9]+)\.([0-9]+)\.([0-9]+)"
           VERSION=$(echo -n $(git diff origin/${{ github.base_ref }} -G '__version__' app_store_scraper/__version__.py))
 
@@ -79,8 +86,13 @@ jobs:
           echo "Old version: $VERSION_OLD"
           echo "New version: $VERSION_NEW"
       - name: Check for patch version bump
-        if: ${{ !startsWith(github.head_ref, 'release') }}
+        if: ${{ !startsWith(github.head_ref, 'release') && github.ref != 'refs/heads/master' }}
         run: |
+          if [ "$FILES_CHANGED" = false ]; then
+            echo "No Python scripts are modified"
+            exit 0
+          fi
+
           if [ "$VERSION_OLD_MAJOR" = "$VERSION_NEW_MAJOR" ] &&
              [ "$VERSION_OLD_MINOR" = "$VERSION_NEW_MINOR" ]; then
             if (($VERSION_OLD_PATCH < $VERSION_NEW_PATCH)); then
@@ -95,7 +107,7 @@ jobs:
             exit 1
           fi
       - name: Check for major / minor version bump
-        if: ${{ startsWith(github.head_ref, 'release') }}
+        if: ${{ startsWith(github.head_ref, 'release') && github.ref != 'refs/heads/master' }}
         run: |
           if (($VERSION_OLD_MAJOR < $VERSION_NEW_MAJOR)) &&
              (($VERSION_OLD_MINOR = $VERSION_NEW_MINOR)); then
