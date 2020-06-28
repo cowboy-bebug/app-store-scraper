@@ -120,7 +120,7 @@ jobs:
           else
             echo "Major / minor version must be bumped for release"
             exit 1
-          fin
+          fi
       - name: Create and push tag
         if: github.ref == 'refs/heads/master'
         run: |
