@@ -109,18 +109,16 @@ jobs:
       - name: Check for major / minor version bump
         if: ${{ startsWith(github.head_ref, 'release') && github.ref != 'refs/heads/master' }}
         run: |
-          if (($VERSION_OLD_MAJOR < $VERSION_NEW_MAJOR)) &&
-             (($VERSION_OLD_MINOR = $VERSION_NEW_MINOR)); then
+          if (($VERSION_OLD_MAJOR < $VERSION_NEW_MAJOR)); then
             echo "Bumped major version $VERSION_OLD -> $VERSION_NEW"
             exit 0
-          elif (($VERSION_OLD_MAJOR = $VERSION_NEW_MAJOR)) &&
-               (($VERSION_OLD_MINOR < $VERSION_NEW_MINOR)); then
+          elif (($VERSION_OLD_MINOR < $VERSION_NEW_MINOR)); then
             echo "Bumped minor version $VERSION_OLD -> $VERSION_NEW"
             exit 0
           else
             echo "Major / minor version must be bumped for release"
             exit 1
-          fin
+          fi
       - name: Create and push tag
         if: github.ref == 'refs/heads/master'
         run: |
