@@ -4,4 +4,12 @@ __description__ = "Single API ☝ App Store Review Scraper 🧹"
 __author__ = "Eric Lim"
 __url__ = "https://github.com/cowboy-bebug/app-store-scraper"
 __license__ = "MIT"
-__keywords__ = ["app store", "ios", "review", "scraping", "scraper"]
+__keywords__ = [
+    "app store",
+    "ios",
+    "ios apps",
+    "podcasts",
+    "review",
+    "scraping",
+    "scraper",
+]
