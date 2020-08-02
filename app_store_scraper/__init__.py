@@ -1,4 +1,5 @@
 from .app_store import AppStore
+from .podcast import Podcast
 from .__version__ import (  # noqa: F401
     __title__,
     __version__,
@@ -8,4 +9,4 @@ from .__version__ import (  # noqa: F401
     __license__,
 )
 
-__all__ = ["AppStore"]
+__all__ = ["AppStore", "Podcast"]
