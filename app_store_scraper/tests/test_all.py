@@ -1,4 +1,4 @@
-from app_store_scraper import AppStore
+from app_store_scraper import AppStore, Podcast
 
 
 class TestEmptyApp:
@@ -39,7 +39,7 @@ class TestEmptyApp:
         )
 
 
-class TestApp:
+class TestAppStore:
     app = AppStore(country="nz", app_name="fortnite")
 
     def test_search_id(self):
@@ -59,3 +59,25 @@ class TestApp:
     def test_reviews_for_duplicates(self):
         for i in range(len(self.app.reviews) - 1):
             assert self.app.reviews[i] != self.app.reviews[i + 1]
+
+
+class TestPodcast:
+    podcast = Podcast(country="nz", app_name="stuff you should know")
+
+    def test_search_id(self):
+        self.podcast.search_id()
+        assert self.podcast.app_id == 278981407
+
+    def test_review(self):
+        self.podcast.review(how_many=3)
+        assert len(self.podcast.reviews) == 20
+        assert len(self.podcast.reviews) == self.podcast.reviews_count
+
+    def test_review_continuation(self):
+        assert len(self.podcast.reviews) == 20
+        self.podcast.review(how_many=7)
+        assert len(self.podcast.reviews) == 40
+
+    def test_reviews_for_duplicates(self):
+        for i in range(len(self.podcast.reviews) - 1):
+            assert self.podcast.reviews[i] != self.podcast.reviews[i + 1]

@@ -18,10 +18,12 @@
 
 # Quickstart
 
+Install:
 ```console
 pip3 install app-store-scraper
 ```
 
+Scrape reviews for an app:
 ```python
 from app_store_scraper import AppStore
 from pprint import pprint
@@ -33,6 +35,17 @@ pprint(fortnite.reviews)
 pprint(fortnite.reviews_count)
 ```
 
+Scrape reviews for a podcast:
+```python
+from app_store_scraper import Podcast
+from pprint import pprint
+
+sysk = Podcast(country="nz", app_name="stuff you should know")
+sysk.review(how_many=20)
+
+pprint(sysk.reviews)
+pprint(sysk.reviews_count)
+```
 
 # Extra Details
 
