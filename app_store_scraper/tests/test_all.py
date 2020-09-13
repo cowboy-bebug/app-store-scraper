@@ -40,11 +40,11 @@ class TestEmptyApp:
 
 
 class TestAppStore:
-    app = AppStore(country="nz", app_name="fortnite")
+    app = AppStore(country="nz", app_name="minecraft")
 
     def test_search_id(self):
         self.app.search_id()
-        assert self.app.app_id == 1261357853
+        assert self.app.app_id == 479516143
 
     def test_review(self):
         self.app.review(how_many=3)
