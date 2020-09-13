@@ -1,4 +1,5 @@
 from app_store_scraper import AppStore, Podcast
+from datetime import datetime, timedelta
 
 
 class TestEmptyApp:
@@ -60,6 +61,14 @@ class TestAppStore:
         for i in range(len(self.app.reviews) - 1):
             assert self.app.reviews[i] != self.app.reviews[i + 1]
 
+    def test_reviews_for_after(self):
+        t1 = datetime.now()
+        t0 = t1 - timedelta(weeks=26)
+        self.app.reviews = []
+        self.app.review(how_many=3, after=t0)
+        for review in self.app.reviews:
+            assert review["date"] >= t0 and review["date"] < t1
+
 
 class TestPodcast:
     podcast = Podcast(country="nz", app_name="stuff you should know")
@@ -81,3 +90,11 @@ class TestPodcast:
     def test_reviews_for_duplicates(self):
         for i in range(len(self.podcast.reviews) - 1):
             assert self.podcast.reviews[i] != self.podcast.reviews[i + 1]
+
+    def test_reviews_for_after(self):
+        t1 = datetime.now()
+        t0 = t1 - timedelta(weeks=26)
+        self.podcast.reviews = []
+        self.podcast.review(how_many=3, after=t0)
+        for review in self.podcast.reviews:
+            assert review["date"] >= t0 and review["date"] < t1

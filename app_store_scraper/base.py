@@ -79,7 +79,10 @@ class Base:
 
     def __repr__(self):
         return "{}(country='{}', app_name='{}', app_id={})".format(
-            self.__class__.__name__, self.country, self.app_name, self.app_id,
+            self.__class__.__name__,
+            self.country,
+            self.app_name,
+            self.app_id,
         )
 
     def __str__(self):
@@ -129,11 +132,13 @@ class Base:
                 token = re.search(r"token%22%3A%22(.+?)%22", tag).group(1)
                 return f"bearer {token}"
 
-    def _parse_data(self):
+    def _parse_data(self, after):
         response = self._response.json()
         for data in response["data"]:
             review = data["attributes"]
             review["date"] = datetime.strptime(review["date"], "%Y-%m-%dT%H:%M:%SZ")
+            if after and review["date"] < after:
+                continue
             self.reviews.append(review)
             self.reviews_count += 1
             self._fetched_count += 1
@@ -170,8 +175,11 @@ class Base:
         app_id = re.search(pattern, self._response.text).group(1)
         return app_id
 
-    def review(self, how_many=sys.maxsize):
+    def review(self, how_many=sys.maxsize, after=None):
         self._log_timer = 0
+        if after and not isinstance(after, datetime):
+            raise SystemExit("`after` must be a datetime object.")
+
         try:
             while True:
                 self._heartbeat()
@@ -180,7 +188,7 @@ class Base:
                     headers=self._request_headers,
                     params=self._request_params,
                 )
-                self._parse_data()
+                self._parse_data(after)
                 self._parse_next()
                 if self._request_offset is None or self._fetched_count >= how_many:
                     break
