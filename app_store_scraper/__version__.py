@@ -1,5 +1,5 @@
 __title__ = "app-store-scraper"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __description__ = "Single API ☝ App Store Review Scraper 🧹"
 __author__ = "Eric Lim"
 __url__ = "https://github.com/cowboy-bebug/app-store-scraper"
