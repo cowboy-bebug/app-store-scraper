@@ -1,10 +1,10 @@
 import logging
-from .app_store import AppStore
+from .base import Base
 
 logger = logging.getLogger("Podcast")
 
 
-class Podcast(AppStore):
+class Podcast(Base):
     _landing_host = "podcasts.apple.com"
     _request_host = "amp-api.podcasts.apple.com"
 
@@ -29,6 +29,7 @@ class Podcast(AppStore):
             log_interval=log_interval,
         )
 
+        # override
         self._request_params = {
             "l": "en-GB",
             "offset": self._request_offset,
