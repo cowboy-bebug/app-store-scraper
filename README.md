@@ -28,11 +28,11 @@ Scrape reviews for an app:
 from app_store_scraper import AppStore
 from pprint import pprint
 
-fortnite = AppStore(country="nz", app_name="fortnite")
-fortnite.review(how_many=20)
+minecraft = AppStore(country="nz", app_name="minecraft")
+minecraft.review(how_many=20)
 
-pprint(fortnite.reviews)
-pprint(fortnite.reviews_count)
+pprint(minecraft.reviews)
+pprint(minecraft.reviews_count)
 ```
 
 Scrape reviews for a podcast:
@@ -67,15 +67,15 @@ There are two required and one positional parameters:
 
 Once instantiated, the object can be examined:
 ```pycon
->>> fortnite
-AppStore(country='nz', app_name='fortnite', app_id=1261357853)
+>>> minecraft
+AppStore(country='nz', app_name='minecraft', app_id=479516143)
 ```
 ```pycon
 >>> print(app)
      Country | nz
-        Name | fortnite
-          ID | 1261357853
-         URL | https://apps.apple.com/nz/app/fortnite/id1261357853
+        Name | minecraft
+          ID | 479516143
+         URL | https://apps.apple.com/nz/app/minecraft/id479516143
 Review count | 0
 ```
 
@@ -97,8 +97,8 @@ Other optional parameters are:
 The maximum number of reviews fetched per request is 20. To minimise the number of calls, the limit of 20 is hardcoded. This means the `review()` method will always grab more than the `how_many` argument supplied with an increment of 20.
 
 ```pycon
->>> fortnite.review(how_many=33)
->>> fortnite.reviews_count
+>>> minecraft.review(how_many=33)
+>>> minecraft.reviews_count
 40
 ```
 
@@ -111,7 +111,7 @@ If `how_many` is not provided, `review()` will terminate after *all* reviews are
 
 The fetched review data are loaded in memory and live inside `reviews` attribute as a list of dict.
 ```pycon
->>> fortnite.reviews
+>>> minecraft.reviews
 [{'userName': 'someone', 'rating': 5, 'date': datetime.datetime(...
 ```
 
