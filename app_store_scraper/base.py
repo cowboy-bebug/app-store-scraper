@@ -175,7 +175,7 @@ class Base:
         app_id = re.search(pattern, self._response.text).group(1)
         return app_id
 
-    def review(self, how_many=sys.maxsize, after=None):
+    def review(self, how_many=sys.maxsize, after=None, sleep=None):
         self._log_timer = 0
         if after and not isinstance(after, datetime):
             raise SystemExit("`after` must be a datetime object.")
@@ -192,6 +192,8 @@ class Base:
                 self._parse_next()
                 if self._request_offset is None or self._fetched_count >= how_many:
                     break
+                if sleep and type(sleep) is int:
+                    time.sleep(sleep)
         except KeyboardInterrupt:
             logger.error("Keyboard interrupted")
         except Exception as e:
