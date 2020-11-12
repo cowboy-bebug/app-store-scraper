@@ -41,7 +41,7 @@ class TestEmptyApp:
 
 
 class TestAppStore:
-    app = AppStore(country="nz", app_name="minecraft")
+    app = AppStore(country="us", app_name="minecraft")
 
     def test_search_id(self):
         self.app.search_id()
@@ -69,9 +69,15 @@ class TestAppStore:
         for review in self.app.reviews:
             assert review["date"] >= t0 and review["date"] < t1
 
+    def test_reviews_for_sleep(self):
+        t_start = datetime.now()
+        self.app.review(how_many=40, sleep=2)
+        t_diff = datetime.now() - t_start
+        assert t_diff.seconds >= 2
+
 
 class TestPodcast:
-    podcast = Podcast(country="nz", app_name="stuff you should know")
+    podcast = Podcast(country="us", app_name="stuff you should know")
 
     def test_search_id(self):
         self.podcast.search_id()
@@ -98,3 +104,9 @@ class TestPodcast:
         self.podcast.review(how_many=3, after=t0)
         for review in self.podcast.reviews:
             assert review["date"] >= t0 and review["date"] < t1
+
+    def test_reviews_for_sleep(self):
+        t_start = datetime.now()
+        self.podcast.review(how_many=40, sleep=2)
+        t_diff = datetime.now() - t_start
+        assert t_diff.seconds >= 2
