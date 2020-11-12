@@ -126,6 +126,6 @@ jobs:
           version=$(echo "$version" | sed -E "s/.*\+__version__.*([0-9]+\.[0-9]+\.[0-9]+).+/\1/")
           if [ "$version" != "" ]; then
             echo "Create and push v$version tag"
-            git tag v"$version"
+            git tag -f v"$version"
             git push origin v"$version"
           fi
