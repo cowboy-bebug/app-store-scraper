@@ -106,6 +106,12 @@ If `how_many` is not provided, `review()` will terminate after *all* reviews are
 
 **NOTE** the review count seen on the landing page differs from the actual number of reviews fetched. This is simply because only *some* users who rated the app also leave reviews.
 
+### Optional Parameters
+
+- `after`
+  - a `datetime` object to filter older reviews
+- `sleep`
+  - an `int` to specify seconds to sleep between each call
 
 ## Review Data
 
