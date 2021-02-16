@@ -136,7 +136,7 @@ class Base:
         response = self._response.json()
         for data in response["data"]:
             review = data["attributes"]
-            review["id"] = data["id"]
+            review["id"] = data["id"] if "id" in data else ""
             review["date"] = datetime.strptime(review["date"], "%Y-%m-%dT%H:%M:%SZ")
             if after and review["date"] < after:
                 continue
